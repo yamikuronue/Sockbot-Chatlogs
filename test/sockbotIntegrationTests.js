@@ -72,11 +72,15 @@ describe('Sockbot-Chatlogs', function() {
 		let knownCommands;
 		before(() => {
 			knownCommands = {
+				'logStart': true,
+				'logEnd': true,
+				'pause': true,
+				'resume': true,
 			};
 		});
 
 		it('Should register the correct commands', () => {
-			return chatLogInstance.activate().then(() => {
+			return chatLogInstance.activate(mockForum).then(() => {
 				for (const command in knownCommands) {
 					Object.keys(Commands.commandList).should.include(command);
 				}
