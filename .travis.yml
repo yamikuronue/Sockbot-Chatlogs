@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+- '4'
+- '5'
+- '6'
+before_script:
+- rm -rf ./coverage
+after_script:
+- test -e ./coverage/lcov.info && < ./coverage/lcov.info ./node_modules/coveralls/bin/coveralls.js
+env:
+  global:
+    service_name: travis-ci
+notifications:
+  slack:
+    secure: HxtYTOFWuUs2yxKAfGweMFDxu/RurUEIyYJ3QktGPYK+uuyxJKvIkUYb9Xc+XC5fMMg0xBHREV8Q0droWiRxkBDaYIDdI1+hm5kwr4EOinCL/HF+exWokTQW8QXaZFNX+9Zc3Y4dmeEGwvQZ+G28vIVQUglB5INvw6l8QCLs2egZNdNrcCQc1hIm6+PLQdgajV2OnIeXo+QVnA1mlhx/ww5hKnplL9BvParwWDuW5FZluYF6wtc8p30HBMerM+vhMVFTFX0tUCdrFzVsyzJzIU2oO8IVBti95yf80Q7QSifBLbhKPoue35TeOZVbWOmM5n7CeBoSD3f408vKp2xbRdgSOo8suEYER06vbf9gl4B4qPmTK1iOkvQK4Xd93Y3yrkwB8B/4lWbhxWTANAPP9gzqBy0EF8Uh4pjB7Mrtsk6labGMNrEz3xxmiGBd+IXcpHW/J9iKhYNoCWM/+wd20mziWiSjzf3goB3dXlcjRb25fv3pRlLFVg6t8m2vQUDrP0tfJfJtziD6a70ZnLC7/BDa2gW7ZwyAS668XxnH9jU1k7caUOweayG2EUGBlloFx2pG0jMffaksEFraphuo7MC9ieIHJk7Hrd9VK20Gld8nqGZemULGCcR/uhr4Y5N33bHcm+JhkiE8f0pCMf1A0z1uqycXqoTq730SQpMgv6g=
