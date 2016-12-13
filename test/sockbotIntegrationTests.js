@@ -72,8 +72,8 @@ describe('Sockbot-Chatlogs', function() {
 		let knownCommands;
 		before(() => {
 			knownCommands = {
-				'logStart': true,
-				'logEnd': true,
+				'logStart': chatLogInstance.onLogStart,
+				'logEnd': chatLogInstance.onLogEnd,
 				'pause': true,
 				'resume': true,
 			};
@@ -83,6 +83,7 @@ describe('Sockbot-Chatlogs', function() {
 			return chatLogInstance.activate(mockForum).then(() => {
 				for (const command in knownCommands) {
 					Object.keys(Commands.commandList).should.include(command);
+					Commands.commandList[command].should.equal(knownCommands[command]);
 				}
 			});
 		});

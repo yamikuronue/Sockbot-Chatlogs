@@ -1,6 +1,7 @@
 'use strict';
 /*globals describe, it*/
 
+const fs = require('fs');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const sinonChai = require('sinon-chai');
@@ -48,7 +49,8 @@ describe('Sockbot-Chatlogs', function() {
         };
         
         before(() => {
-           chatLogInstance.forum = mockForum; 
+           chatLogInstance.forum = mockForum;
+           sinon.stub(chatLogInstance, 'getNextLogNum').returns(1);
         });
         
         afterEach(() => {
@@ -65,7 +67,8 @@ describe('Sockbot-Chatlogs', function() {
         
         it('should log the channel', () => {
             return chatLogInstance.onLogStart(fakeCommand).then(() => {
-               Object.keys(chatLogInstance.logsInProgress).should.include('someRoom');
+                Object.keys(chatLogInstance.logsInProgress).should.include('someRoom');
+                chatLogInstance.logsInProgress.someRoom.should.equal('someRoom1.txt');
             });
         });
         
@@ -74,7 +77,8 @@ describe('Sockbot-Chatlogs', function() {
             return chatLogInstance.onLogStart(fakeCommand).then(() => {
                 mockForum.emit.should.have.been.calledWith('logStart', {
                     source: 'someRoom',
-                    requestor: 'yamikuronue'
+                    requestor: 'yamikuronue',
+                    id: 'someRoom1'
                 });
                 mockForum.emit.restore();
             });
@@ -143,6 +147,49 @@ describe('Sockbot-Chatlogs', function() {
                fakeCommand.reply.should.have.been.calledWith('Error: No logging in progess to end');
                fakeCommand.reply.restore();
             });
+        });
+    });
+    
+    describe('onMessage', () => {
+        const fakeNotification = {
+            topicId: 'someChannel',
+            getText: () => Promise.resolve('John Jacob Jingleheimer Shmidt')
+        };
+        
+        before(() => {
+           sinon.stub(fs, 'appendFile').yields();
+        });
+        
+        afterEach(() => {
+           fs.appendFile.reset(); 
+        });
+
+        it('should exist', () => {
+            chatLogInstance.onMessage.should.be.a('function');
+        });
+        
+        it('should return a promise', () => {
+            chatLogInstance.onMessage(fakeNotification).should.be.fulfilled;
+        });
+        
+        it('should call appendFile when logger is on', () => {
+            chatLogInstance.logsInProgress = {'someChannel': 'someChannel1.txt'};
+            return chatLogInstance.onMessage(fakeNotification).then(() => {
+                fs.appendFile.should.have.been.calledWith('someChannel1.txt', 'John Jacob Jingleheimer Shmidt');
+            });
+        });
+        
+        it('should not call appendFile when logger is off', () => {
+            chatLogInstance.logsInProgress = [];
+            return chatLogInstance.onMessage(fakeNotification).then(() => {
+                fs.appendFile.should.not.have.been.called;
+            });
+        });
+        
+        it('should reject when errors occur', () => {
+            chatLogInstance.logsInProgress = {'someChannel': 'someChannel1.txt'};
+            fs.appendFile.yields('An error occurred!');
+            chatLogInstance.onMessage(fakeNotification).should.be.rejectedWith('An error occurred!');
         });
     });
 });
