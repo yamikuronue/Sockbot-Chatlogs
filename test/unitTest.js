@@ -249,4 +249,26 @@ describe('Sockbot-Chatlogs', function() {
             });
         });
     });
+    
+    describe('resume', () => {
+        const fakeCommand = {
+            getTopic: () => Promise.resolve({
+				id: 'someRoom'
+			}),
+			reply: () => Promise.resolve(),
+			ids: {
+			    channel: 'someRoom',
+			    user: 'accalia'
+			}
+        };
+        
+        it('should exist', () => {
+            chatLogInstance.onResume.should.be.a('function');
+        });
+        
+        it('should return a promise', () => {
+            chatLogInstance.onResume(fakeCommand).should.be.fulfilled;
+        });
+        
+    });
 });

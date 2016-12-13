@@ -74,8 +74,8 @@ describe('Sockbot-Chatlogs', function() {
 			knownCommands = {
 				'logStart': chatLogInstance.onLogStart,
 				'logEnd': chatLogInstance.onLogEnd,
-				'pause': true,
-				'resume': true,
+				'pause': chatLogInstance.onPause,
+				'resume': chatLogInstance.onResume,
 			};
 		});
 

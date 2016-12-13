@@ -16,8 +16,8 @@ class chatLogger {
         this.forum = forum;
         forum.Commands.add('logStart', 'Start a log file in the current channel', this.onLogStart);
         forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd);
-        forum.Commands.add('pause', 'Pause the log file in the current channel', true);
-        forum.Commands.add('resume', 'Resume a log file in the current channel', true);
+        forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause);
+        forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume);
         return Promise.resolve();
     }
     
@@ -75,6 +75,10 @@ class chatLogger {
                 });
             }
         });
+    }
+    
+    onResume(command) {
+        return Promise.resolve();
     }
     
     onMessage(notification) {
