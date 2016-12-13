@@ -112,7 +112,7 @@ describe('Sockbot-Chatlogs', function() {
         });
         
         beforeEach(() => {
-            chatLogInstance.logsInProgress.someRoom = true;
+            chatLogInstance.logsInProgress.someRoom = 'someRoom1';
         });
         
         it('should exist', () => {
@@ -134,7 +134,8 @@ describe('Sockbot-Chatlogs', function() {
             return chatLogInstance.onLogEnd(fakeCommand).then(() => {
                 mockForum.emit.should.have.been.calledWith('logEnd', {
                     source: 'someRoom',
-                    requestor: 'accalia'
+                    requestor: 'accalia',
+                    id: 'someRoom1'
                 });
                 mockForum.emit.restore();
             });
@@ -190,6 +191,62 @@ describe('Sockbot-Chatlogs', function() {
             chatLogInstance.logsInProgress = {'someChannel': 'someChannel1.txt'};
             fs.appendFile.yields('An error occurred!');
             chatLogInstance.onMessage(fakeNotification).should.be.rejectedWith('An error occurred!');
+        });
+    });
+    
+    describe('pause', () => {
+        const fakeCommand = {
+            getTopic: () => Promise.resolve({
+				id: 'someRoom'
+			}),
+			reply: () => Promise.resolve(),
+			ids: {
+			    channel: 'someRoom',
+			    user: 'accalia'
+			}
+        };
+        
+        before(() => {
+           chatLogInstance.forum = mockForum; 
+        });
+        
+        beforeEach(() => {
+            chatLogInstance.logsInProgress.someRoom = 'someRoom1';
+        });
+        
+        it('should exist', () => {
+            chatLogInstance.onPause.should.be.a('function');
+        });
+        
+        it('should return a promise', () => {
+            chatLogInstance.onPause(fakeCommand).should.be.fulfilled;
+        });
+        
+        it('should stop logging the channel', () => {
+            return chatLogInstance.onPause(fakeCommand).then(() => {
+               Object.keys(chatLogInstance.logsInProgress).should.not.include('someRoom');
+            });
+        });
+        
+        it('should emit a end action', () => {
+            sinon.spy(mockForum, 'emit');
+            return chatLogInstance.onPause(fakeCommand).then(() => {
+                mockForum.emit.should.have.been.calledWith('logPause', {
+                    source: 'someRoom',
+                    requestor: 'accalia',
+                    id: 'someRoom1'
+                });
+                mockForum.emit.restore();
+            });
+        });
+        
+        it('should error when there is no log in progress', () => {
+            delete chatLogInstance.logsInProgress['someRoom'];
+            sinon.spy(fakeCommand, 'reply');
+            return chatLogInstance.onPause(fakeCommand).then(() => {
+               fakeCommand.reply.should.have.been.calledWith('Error: No logging in progess to end');
+               fakeCommand.reply.restore();
+            });
         });
     });
 });

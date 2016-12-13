@@ -50,10 +50,28 @@ class chatLogger {
             if (!this.logsInProgress[topic.id]) {
                 command.reply('Error: No logging in progess to end');
             } else {
+                const logID = this.logsInProgress[topic.id];
                 delete this.logsInProgress[topic.id];
                 this.forum.emit('logEnd', {
                     source: topic.id,
-                    requestor: command.ids.user
+                    requestor: command.ids.user,
+                    id: logID
+                });
+            }
+        });
+    }
+    
+    onPause(command) {
+        return command.getTopic().then((topic) => {
+            if (!this.logsInProgress[topic.id]) {
+                command.reply('Error: No logging in progess to end');
+            } else {
+                const logID = this.logsInProgress[topic.id];
+                delete this.logsInProgress[topic.id];
+                this.forum.emit('logPause', {
+                    source: topic.id,
+                    requestor: command.ids.user,
+                    id: logID
                 });
             }
         });
