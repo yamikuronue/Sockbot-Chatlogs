@@ -105,7 +105,7 @@ describe('Sockbot-Chatlogs', function() {
         it('should log the channel', () => {
             return chatLogInstance.onLogStart(fakeCommand).then(() => {
                 Object.keys(chatLogInstance.logsInProgress).should.include('someRoom');
-                chatLogInstance.logsInProgress.someRoom.should.equal('someRoom1.txt');
+                chatLogInstance.logsInProgress.someRoom.should.equal('someRoom1');
             });
         });
         
@@ -211,7 +211,7 @@ describe('Sockbot-Chatlogs', function() {
         });
         
         it('should call appendFile when logger is on', () => {
-            chatLogInstance.logsInProgress = {'someChannel': 'someChannel1.txt'};
+            chatLogInstance.logsInProgress = {'someChannel': 'someChannel1'};
             return chatLogInstance.onMessage(fakeNotification).then(() => {
                 fs.appendFile.should.have.been.calledWith('someChannel1.txt', 'John Jacob Jingleheimer Shmidt');
             });
@@ -225,7 +225,7 @@ describe('Sockbot-Chatlogs', function() {
         });
         
         it('should reject when errors occur', () => {
-            chatLogInstance.logsInProgress = {'someChannel': 'someChannel1.txt'};
+            chatLogInstance.logsInProgress = {'someChannel': 'someChannel1'};
             fs.appendFile.yields('An error occurred!');
             chatLogInstance.onMessage(fakeNotification).should.be.rejectedWith('An error occurred!');
         });
@@ -294,10 +294,17 @@ describe('Sockbot-Chatlogs', function() {
 			}),
 			reply: () => Promise.resolve(),
 			ids: {
-                channel: 'someRoom',
-                user: 'accalia'
-			}
+                topic: 'someRoom',
+                user: 'kaelas'
+			},
+			args: [123]
         };
+        
+        before(() => {
+            sinon.stub(fs, 'existsSync');
+            sinon.spy(mockForum, 'emit');
+            chatLogInstance.forum = mockForum;
+        });
         
         it('should exist', () => {
             chatLogInstance.onResume.should.be.a('function');
@@ -307,5 +314,44 @@ describe('Sockbot-Chatlogs', function() {
             chatLogInstance.onResume(fakeCommand).should.be.fulfilled;
         });
         
+        it('should send an error if there is no such file to resume', () => {
+            fs.existsSync.returns(false);
+            sinon.spy(fakeCommand, 'reply');
+           
+            return chatLogInstance.onResume(fakeCommand).then(() => {
+                fs.existsSync.should.have.been.calledWith('someRoom123.txt');
+                fakeCommand.reply.should.have.been.calledWith('Error: No such log to resume');
+                fakeCommand.reply.restore();
+            });
+        });
+        
+        it('should start the log if there is such a file', () => {
+            fs.existsSync.returns(true);
+            sinon.spy(fakeCommand, 'reply');
+            return chatLogInstance.onResume(fakeCommand).then(() => {
+                fs.existsSync.should.have.been.calledWith('someRoom123.txt');
+                fakeCommand.reply.should.have.been.calledWith('Resumed logging');
+                fakeCommand.reply.restore();
+            });
+        });
+        
+        it('should mark the log as in progress', () => {
+            fs.existsSync.returns(true);
+            chatLogInstance.logsInProgress = [];
+            return chatLogInstance.onResume(fakeCommand).then(() => {
+                Object.keys(chatLogInstance.logsInProgress).should.include('someRoom');
+            });
+        });
+        
+        it('should emit a resume action', () => {
+            mockForum.emit.reset();
+            return chatLogInstance.onResume(fakeCommand).then(() => {
+                mockForum.emit.should.have.been.calledWith('logResume', {
+                    source: 'someRoom',
+                    requestor: 'kaelas',
+                    id: 'someRoom123'
+                });
+            });
+        });
     });
 });

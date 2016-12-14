@@ -12,9 +12,6 @@ require('sinon-as-promised');
 const sockChatLogs = require('../src/index');
 
 const testConfig = {
-	db: ':memory:',
-	thread: 11,
-	name: 'testMafia'
 };
 
 describe('Sockbot-Chatlogs', function() {
@@ -49,7 +46,7 @@ describe('Sockbot-Chatlogs', function() {
 			off: () => true
 		};
 
-	const chatLogInstance = sockChatLogs.plugin(mockForum, testConfig);
+	const chatLogInstance = sockChatLogs.plugin(mockForum, {testConfig});
 
 
 	beforeEach(() => {

@@ -40,8 +40,8 @@ class ChatLogger {
             }
             
             return this.getNextLogNum(topic.id).then((num) => {
-                const logID = topic.id + num;
-                this.logsInProgress[topic.id] = `${logID}.txt`;
+                const logID = getLogID(topic.id, num);
+                this.logsInProgress[topic.id] = logID;
                 this.forum.emit('logStart', {
                     source: topic.id,
                     requestor: command.ids.user,
@@ -84,14 +84,31 @@ class ChatLogger {
     }
     
     onResume(command) {
-        return Promise.resolve();
+        return command.getTopic().then((topic) => {
+            const logID = getLogID(topic.id, command.args[0]);
+            const filename = getFilename(logID);
+            if (fs.existsSync(filename)) {
+                this.logsInProgress[topic.id] = logID;
+                command.reply('Resumed logging');
+                 this.forum.emit('logResume', {
+                    source: topic.id,
+                    requestor: command.ids.user,
+                    id: logID
+                });
+                return Promise.resolve();
+            }
+            
+            command.reply('Error: No such log to resume');
+            return Promise.resolve();
+        });
     }
     
     onMessage(notification) {
         if (this.logsInProgress[notification.topicId]) {
             return new Promise((resolve, reject) => {
                 notification.getText().then((text) => {
-                    fs.appendFile(this.logsInProgress[notification.topicId], text, (err) => {
+                    const filename = getFilename(this.logsInProgress[notification.topicId]);
+                    fs.appendFile(filename, text, (err) => {
                         if (err) {
                             reject(err);
                         }
@@ -105,6 +122,24 @@ class ChatLogger {
     }
 }
 
+/**
+* Get the ID to log under
+* @param {String} topicId The channel identifier
+* @param {Number} logNum The current log number
+* @returns {String} The log ID
+*/
+function getLogID (topicId, logNum) {
+    return `${topicId}${logNum}`;
+}
+
+/**
+* Get the filename to log under
+* @param {String} logID The log identifier
+* @returns {String} The filename
+*/
+function getFilename(logID) {
+    return `${logID}.txt`;
+}
 
 module.exports = {
     plugin: () => {
