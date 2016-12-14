@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "eslint . && mocha test/*.js"
+    "test": "npm run unittest && npm run inttest",
+    "unittest": "eslint . && mocha test/unit/*.js",
+    "inttest": "mocha test/integration/*.js"
   },
   "repository": {
     "type": "git",

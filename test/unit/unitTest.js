@@ -11,7 +11,7 @@ chai.should();
 const sinon = require('sinon');
 require('sinon-as-promised');
 
-const sockChatLogs = require('../src/index');
+const sockChatLogs = require('../../src/index');
 const fs = require('fs');
 const storage = require('node-persist');
 
@@ -86,12 +86,17 @@ describe('Sockbot-Chatlogs', function() {
         };
         
         before(() => {
-           chatLogInstance.forum = mockForum;
-           sinon.stub(chatLogInstance, 'getNextLogNum').resolves(1);
+            sinon.spy(mockForum, 'emit');
+            chatLogInstance.forum = mockForum;
+            sinon.stub(chatLogInstance, 'getNextLogNum').resolves(1);
         });
         
-        afterEach(() => {
-            delete chatLogInstance.logsInProgress.someRoom;
+        beforeEach(() => {
+            chatLogInstance.logsInProgress = [];
+        });
+        
+        after(() => {
+            mockForum.emit.restore();
         });
         
         it('should exist', () => {
@@ -108,16 +113,15 @@ describe('Sockbot-Chatlogs', function() {
                 chatLogInstance.logsInProgress.someRoom.should.equal('someRoom1');
             });
         });
-        
+
         it('should emit a start action', () => {
-            sinon.spy(mockForum, 'emit');
+            
             return chatLogInstance.onLogStart(fakeCommand).then(() => {
                 mockForum.emit.should.have.been.calledWith('logStart', {
                     source: 'someRoom',
                     requestor: 'yamikuronue',
                     id: 'someRoom1'
                 });
-                mockForum.emit.restore();
             });
         });
         
@@ -128,6 +132,40 @@ describe('Sockbot-Chatlogs', function() {
                Object.keys(chatLogInstance.logsInProgress).should.include('someRoom');
                fakeCommand.reply.should.have.been.calledWith('Error: Log already in progess');
                fakeCommand.reply.restore();
+            });
+        });
+        
+        describe('specialCharsInLogs', () => {
+            it('should remove the leading # from the channel name when making an ID', () => {
+                return chatLogInstance.onLogStart({
+                    getTopic: () => Promise.resolve({
+                        id: '#someRoom'
+                    }),
+                    reply: () => Promise.resolve(),
+                    ids: {
+                        channel: '#someRoom',
+                        user: 'yamikuronue'
+                    }
+                }).then(() => {
+                    Object.keys(chatLogInstance.logsInProgress).should.include('#someRoom');
+                    chatLogInstance.logsInProgress['#someRoom'].should.equal('someRoom1');
+                });
+            });
+            
+            it('should replace windows-unfriendly chars with _', () => {
+                return chatLogInstance.onLogStart({
+                    getTopic: () => Promise.resolve({
+                        id: '#$0m3r00/\\/\\_%0_:|'
+                    }),
+                    reply: () => Promise.resolve(),
+                    ids: {
+                        channel: '#$0m3r00/\\/\\_%0_:|',
+                        user: 'yamikuronue'
+                    }
+                }).then(() => {
+                    Object.keys(chatLogInstance.logsInProgress).should.include('#$0m3r00/\\/\\_%0_:|');
+                    chatLogInstance.logsInProgress['#$0m3r00/\\/\\_%0_:|'].should.equal('$0m3r00______0___1');
+                });
             });
         });
     });
@@ -213,7 +251,7 @@ describe('Sockbot-Chatlogs', function() {
         it('should call appendFile when logger is on', () => {
             chatLogInstance.logsInProgress = {'someChannel': 'someChannel1'};
             return chatLogInstance.onMessage(fakeNotification).then(() => {
-                fs.appendFile.should.have.been.calledWith('someChannel1.txt', 'John Jacob Jingleheimer Shmidt');
+                fs.appendFile.should.have.been.calledWith('someChannel1.txt', 'John Jacob Jingleheimer Shmidt\n');
             });
         });
         

@@ -108,7 +108,7 @@ class ChatLogger {
             return new Promise((resolve, reject) => {
                 notification.getText().then((text) => {
                     const filename = getFilename(this.logsInProgress[notification.topicId]);
-                    fs.appendFile(filename, text, (err) => {
+                    fs.appendFile(filename, `${text}\n`, (err) => {
                         if (err) {
                             reject(err);
                         }
@@ -129,6 +129,11 @@ class ChatLogger {
 * @returns {String} The log ID
 */
 function getLogID (topicId, logNum) {
+    //Strip channel ID leading # to make it easier to see
+    topicId = topicId.replace('#', '');
+    
+    //Strip windows-unfriendly filesystem chars
+    topicId = topicId.replace(/[/\\?%*:|"<>\.]/g, '_');
     return `${topicId}${logNum}`;
 }
 

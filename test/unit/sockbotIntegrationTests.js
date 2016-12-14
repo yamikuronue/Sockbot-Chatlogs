@@ -9,7 +9,7 @@ chai.should();
 const sinon = require('sinon');
 require('sinon-as-promised');
 
-const sockChatLogs = require('../src/index');
+const sockChatLogs = require('../../src/index');
 
 const testConfig = {
 };
@@ -46,7 +46,7 @@ describe('Sockbot-Chatlogs', function() {
 			off: () => true
 		};
 
-	const chatLogInstance = sockChatLogs.plugin(mockForum, {testConfig});
+	const chatLogInstance = sockChatLogs.plugin(mockForum, testConfig);
 
 
 	beforeEach(() => {
