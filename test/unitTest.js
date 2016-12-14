@@ -1,7 +1,6 @@
 'use strict';
 /*globals describe, it*/
 
-const fs = require('fs');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const sinonChai = require('sinon-chai');
@@ -13,6 +12,8 @@ const sinon = require('sinon');
 require('sinon-as-promised');
 
 const sockChatLogs = require('../src/index');
+const fs = require('fs');
+const storage = require('node-persist');
 
 const testConfig = {
 	db: ':memory:',
@@ -36,6 +37,42 @@ const mockForum = {
 
 describe('Sockbot-Chatlogs', function() {
     const chatLogInstance = sockChatLogs.plugin(mockForum, testConfig);
+    
+    describe('getNextLogNum', () => {
+        before(() => {
+            sinon.stub(storage, 'getItem').resolves(undefined);
+            sinon.stub(storage, 'setItem').resolves();
+        });
+        
+        it('should return a number', () => {
+            chatLogInstance.getNextLogNum('channel').should.eventually.be.a('Number');
+        });
+        
+        it('should return 1 the first time a channel is logged', () => {
+            chatLogInstance.getNextLogNum('channel').should.eventually.equal(1);
+        });
+        
+        it('should return 2 if log 1 has been made', () => {
+            storage.getItem.resolves(1);
+            chatLogInstance.getNextLogNum('channel').should.eventually.equal(2);
+        });
+        
+        it('should return one higher than the previous log number', () => {
+            storage.getItem.resolves(32);
+            chatLogInstance.getNextLogNum('channel').should.eventually.equal(33);
+        });
+        
+        it('should store the first log number', () => {
+            storage.getItem.resolves(undefined);
+            return chatLogInstance.getNextLogNum('channel').then(() => storage.setItem.should.have.been.calledWith('channel', 1));
+        });
+        
+        it('should store the first log number', () => {
+            storage.getItem.resolves(12);
+            return chatLogInstance.getNextLogNum('channel').then(() => storage.setItem.should.have.been.calledWith('channel', 13));
+        });
+    });
+    
     describe('logStart', () => {
         const fakeCommand = {
             getTopic: () => Promise.resolve({
@@ -50,7 +87,7 @@ describe('Sockbot-Chatlogs', function() {
         
         before(() => {
            chatLogInstance.forum = mockForum;
-           sinon.stub(chatLogInstance, 'getNextLogNum').returns(1);
+           sinon.stub(chatLogInstance, 'getNextLogNum').resolves(1);
         });
         
         afterEach(() => {

@@ -1,6 +1,9 @@
 'use strict';
 const fs = require('fs');
 
+const storage = require('node-persist');
+storage.initSync();
+
 
 class ChatLogger {
     constructor() {
@@ -23,22 +26,28 @@ class ChatLogger {
     }
     
     getNextLogNum(channel) {
-        return 1;
+        return storage.getItem(channel).then((value) => {
+            const newValue = value ? value + 1 : 1;
+            return storage.setItem(channel, newValue).then(() => Promise.resolve(newValue));
+        });
     }
     
     onLogStart(command) {
         return command.getTopic().then((topic) => {
             if (this.logsInProgress[topic.id]) {
                 command.reply('Error: Log already in progess');
-            } else {
-                const logID = topic.id + this.getNextLogNum(topic.id);
+                return Promise.resolve();
+            }
+            
+            return this.getNextLogNum(topic.id).then((num) => {
+                const logID = topic.id + num;
                 this.logsInProgress[topic.id] = `${logID}.txt`;
                 this.forum.emit('logStart', {
                     source: topic.id,
                     requestor: command.ids.user,
                     id: logID
                 });
-            }
+            });
         });
     }
     

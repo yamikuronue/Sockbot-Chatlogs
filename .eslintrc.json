@@ -130,7 +130,7 @@
 		"no-shadow": 2,
 		"no-shadow-restricted-names": 2,
 		"no-sparse-arrays": 2,
-		"no-sync": 2,
+		"no-sync": 0,
 		"no-throw-literal": 2,
 		"no-trailing-spaces": [1, {
 			"skipBlankLines": true

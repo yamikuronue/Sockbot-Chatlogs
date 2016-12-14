@@ -27,5 +27,8 @@
     "sinon": "^1.17.6",
     "sinon-as-promised": "^4.0.2",
     "sinon-chai": "^2.8.0"
+  },
+  "dependencies": {
+    "node-persist": "^2.0.7"
   }
 }
