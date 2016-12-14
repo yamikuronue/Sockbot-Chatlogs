@@ -6,17 +6,17 @@ storage.initSync();
 
 
 class ChatLogger {
-    constructor() {
+    constructor(forum) {
+        this.forum = forum;
         this.logsInProgress = {};
     }
     
-    activate(forum) {
-        this.forum = forum;
-        forum.Commands.add('logStart', 'Start a log file in the current channel', this.onLogStart);
-        forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd);
-        forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause);
-        forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume);
-        forum.on('notification:message', this.onMessage);
+    activate() {
+        this.forum.Commands.add('logStart', 'Start a log file in the current channel', this.onLogStart.bind(this));
+        this.forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd.bind(this));
+        this.forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause.bind(this));
+        this.forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume.bind(this));
+        this.forum.on('notification:message', this.onMessage);
         return Promise.resolve();
     }
     
@@ -147,7 +147,7 @@ function getFilename(logID) {
 }
 
 module.exports = {
-    plugin: () => {
-        return new ChatLogger();
+    plugin: (forum) => {
+        return new ChatLogger(forum);
     }
 };

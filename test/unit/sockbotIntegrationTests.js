@@ -46,10 +46,11 @@ describe('Sockbot-Chatlogs', function() {
 			off: () => true
 		};
 
-	const chatLogInstance = sockChatLogs.plugin(mockForum, testConfig);
+	let chatLogInstance;
 
 
 	beforeEach(() => {
+		chatLogInstance = sockChatLogs.plugin(mockForum, testConfig);
 		sandbox = sinon.sandbox.create();
 	});
 
@@ -78,7 +79,7 @@ describe('Sockbot-Chatlogs', function() {
 		});
 
 		it('Should register the correct commands', () => {
-			return chatLogInstance.activate(mockForum).then(() => {
+			return chatLogInstance.activate().then(() => {
 				for (const command in knownCommands) {
 					Object.keys(Commands.commandList).should.include(command);
 					Commands.commandList[command].should.equal(knownCommands[command]);
@@ -90,7 +91,7 @@ describe('Sockbot-Chatlogs', function() {
 	describe('Notifications', () => {
 		it('Should listen for new messages', () => {
 			sinon.spy(mockForum, 'on');
-			return chatLogInstance.activate(mockForum).then(() => {
+			return chatLogInstance.activate().then(() => {
 				mockForum.on.should.have.been.calledWith('notification:message');
 				mockForum.on.reset();
 			});
@@ -98,7 +99,7 @@ describe('Sockbot-Chatlogs', function() {
 		
 		it('Should stop listening on command', () => {
 			sinon.spy(mockForum, 'off');
-			return chatLogInstance.deactivate(mockForum).then(() => {
+			return chatLogInstance.deactivate().then(() => {
 				mockForum.off.should.have.been.calledWith('notification:message');
 				mockForum.off.reset();
 			});
