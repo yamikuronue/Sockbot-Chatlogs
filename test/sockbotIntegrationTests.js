@@ -45,7 +45,9 @@ describe('Sockbot-Chatlogs', function() {
 			},
 			supports: (input) => {
 				return input === 'Chats' || input === 'Formatting.Markup.HTML' || input === 'Formatting.Multiline';
-			}
+			},
+			on: () => true,
+			off: () => true
 		};
 
 	const chatLogInstance = sockChatLogs.plugin(mockForum, testConfig);
@@ -85,6 +87,24 @@ describe('Sockbot-Chatlogs', function() {
 					Object.keys(Commands.commandList).should.include(command);
 					Commands.commandList[command].should.equal(knownCommands[command]);
 				}
+			});
+		});
+	});
+	
+	describe('Notifications', () => {
+		it('Should listen for new messages', () => {
+			sinon.spy(mockForum, 'on');
+			return chatLogInstance.activate(mockForum).then(() => {
+				mockForum.on.should.have.been.calledWith('notification:message');
+				mockForum.on.reset();
+			});
+		});
+		
+		it('Should stop listening on command', () => {
+			sinon.spy(mockForum, 'off');
+			return chatLogInstance.deactivate(mockForum).then(() => {
+				mockForum.off.should.have.been.calledWith('notification:message');
+				mockForum.off.reset();
 			});
 		});
 	});

@@ -18,10 +18,12 @@ class chatLogger {
         forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd);
         forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause);
         forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume);
+        forum.on('notification:message', this.onMessage);
         return Promise.resolve();
     }
     
     deactivate() {
+        this.forum.off('notification:message', this.onMessage);
         return Promise.resolve();
     }
     
