@@ -43,8 +43,8 @@ describe('Sockbot-Chatlogs', function() {
 			}),
 			reply: () => Promise.resolve(),
 			ids: {
-			    channel: 'someRoom',
-			    user: 'yamikuronue'
+                channel: 'someRoom',
+                user: 'yamikuronue'
 			}
         };
         
@@ -54,7 +54,7 @@ describe('Sockbot-Chatlogs', function() {
         });
         
         afterEach(() => {
-            delete chatLogInstance.logsInProgress['someRoom'];
+            delete chatLogInstance.logsInProgress.someRoom;
         });
         
         it('should exist', () => {
@@ -102,13 +102,13 @@ describe('Sockbot-Chatlogs', function() {
 			}),
 			reply: () => Promise.resolve(),
 			ids: {
-			    channel: 'someRoom',
-			    user: 'accalia'
+                channel: 'someRoom',
+                user: 'accalia'
 			}
         };
         
         before(() => {
-           chatLogInstance.forum = mockForum; 
+           chatLogInstance.forum = mockForum;
         });
         
         beforeEach(() => {
@@ -142,7 +142,7 @@ describe('Sockbot-Chatlogs', function() {
         });
         
         it('should error when there is no log in progress', () => {
-            delete chatLogInstance.logsInProgress['someRoom'];
+            delete chatLogInstance.logsInProgress.someRoom;
             sinon.spy(fakeCommand, 'reply');
             return chatLogInstance.onLogEnd(fakeCommand).then(() => {
                fakeCommand.reply.should.have.been.calledWith('Error: No logging in progess to end');
@@ -162,7 +162,7 @@ describe('Sockbot-Chatlogs', function() {
         });
         
         afterEach(() => {
-           fs.appendFile.reset(); 
+           fs.appendFile.reset();
         });
 
         it('should exist', () => {
@@ -201,13 +201,13 @@ describe('Sockbot-Chatlogs', function() {
 			}),
 			reply: () => Promise.resolve(),
 			ids: {
-			    channel: 'someRoom',
-			    user: 'accalia'
+                channel: 'someRoom',
+                user: 'accalia'
 			}
         };
         
         before(() => {
-           chatLogInstance.forum = mockForum; 
+           chatLogInstance.forum = mockForum;
         });
         
         beforeEach(() => {
@@ -241,7 +241,7 @@ describe('Sockbot-Chatlogs', function() {
         });
         
         it('should error when there is no log in progress', () => {
-            delete chatLogInstance.logsInProgress['someRoom'];
+            delete chatLogInstance.logsInProgress.someRoom;
             sinon.spy(fakeCommand, 'reply');
             return chatLogInstance.onPause(fakeCommand).then(() => {
                fakeCommand.reply.should.have.been.calledWith('Error: No logging in progess to end');
@@ -257,8 +257,8 @@ describe('Sockbot-Chatlogs', function() {
 			}),
 			reply: () => Promise.resolve(),
 			ids: {
-			    channel: 'someRoom',
-			    user: 'accalia'
+                channel: 'someRoom',
+                user: 'accalia'
 			}
         };
         

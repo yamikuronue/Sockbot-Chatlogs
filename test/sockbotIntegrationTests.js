@@ -18,7 +18,6 @@ const testConfig = {
 };
 
 describe('Sockbot-Chatlogs', function() {
-	this.timeout(50000);
 	let sandbox;
 	const Commands = {
 		commandList: {},
@@ -65,7 +64,7 @@ describe('Sockbot-Chatlogs', function() {
 		sockChatLogs.plugin.should.be.a('function');
 	});
 
-	it('Should create a plugin when called', () =>{
+	it('Should create a plugin when called', () => {
 		chatLogInstance.activate.should.be.a('function');
 		chatLogInstance.deactivate.should.be.a('function');
 	});

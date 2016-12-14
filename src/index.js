@@ -1,13 +1,8 @@
 'use strict';
 const fs = require('fs');
 
-module.exports = {
-    plugin: () => {
-        return new chatLogger();
-    }
-};
 
-class chatLogger {
+class ChatLogger {
     constructor() {
         this.logsInProgress = {};
     }
@@ -100,3 +95,10 @@ class chatLogger {
         return Promise.resolve();
     }
 }
+
+
+module.exports = {
+    plugin: () => {
+        return new ChatLogger();
+    }
+};
