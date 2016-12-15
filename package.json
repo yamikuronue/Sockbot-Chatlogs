@@ -31,6 +31,10 @@
     "sinon-chai": "^2.8.0"
   },
   "dependencies": {
+    "debug": "^2.4.4",
     "node-persist": "^2.0.7"
+  },
+  "peerDependencies": {
+    "sockbot": "^6.0.0"
   }
 }

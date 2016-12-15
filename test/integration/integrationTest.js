@@ -74,9 +74,11 @@ describe('Basic use case', () => {
     
     it('Should switch to logging', () => {
         return chatInstance.onLogStart({
-           ids: {
-               user: 'yamikuronue'
-           },
+            parent: {
+               ids: {
+                   user: 'yamikuronue'
+               }
+            },
            getTopic: () => Promise.resolve({id: '#crossings_ooc'})
         }).then(() => chatInstance.onMessage({
            topicId: '#crossings_ooc',
@@ -96,9 +98,11 @@ describe('Basic use case', () => {
     
     it('Should switch to not logging', () => {
         return chatInstance.onLogEnd({
-           ids: {
-               user: 'yamikuronue'
-           },
+            parent: {
+               ids: {
+                   user: 'yamikuronue'
+               }
+            },
            getTopic: () => Promise.resolve({id: '#crossings_ooc'})
         }).then(() => chatInstance.onMessage({
            topicId: '#crossings_ooc',

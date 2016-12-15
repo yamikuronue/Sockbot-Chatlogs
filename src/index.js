@@ -4,6 +4,8 @@ const fs = require('fs');
 const storage = require('node-persist');
 storage.initSync();
 
+const debug = require('debug')('sockbot:sockChatLogs');
+
 
 class ChatLogger {
     constructor(forum) {
@@ -12,10 +14,10 @@ class ChatLogger {
     }
     
     activate() {
-        this.forum.Commands.add('logStart', 'Start a log file in the current channel', this.onLogStart.bind(this));
-        this.forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd.bind(this));
-        this.forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause.bind(this));
-        this.forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume.bind(this));
+        this.forum.Commands.add('logStart', 'Start a log file in the current channel', this.onLogStart, this);
+        this.forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd, this);
+        this.forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause, this);
+        this.forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume, this);
         this.forum.on('notification:message', this.onMessage);
         return Promise.resolve();
     }
@@ -28,12 +30,16 @@ class ChatLogger {
     getNextLogNum(channel) {
         return storage.getItem(channel).then((value) => {
             const newValue = value ? value + 1 : 1;
-            return storage.setItem(channel, newValue).then(() => Promise.resolve(newValue));
+            return storage.setItem(String(channel), String(newValue)).then(() => Promise.resolve(newValue));
+        }).catch((err) => {
+            debug(err);
+            debug(err.stack);
         });
     }
     
     onLogStart(command) {
         return command.getTopic().then((topic) => {
+            debug(topic);
             if (this.logsInProgress[topic.id]) {
                 command.reply('Error: Log already in progess');
                 return Promise.resolve();
@@ -44,7 +50,7 @@ class ChatLogger {
                 this.logsInProgress[topic.id] = logID;
                 this.forum.emit('logStart', {
                     source: topic.id,
-                    requestor: command.ids.user,
+                    requestor: command.parent.ids.user,
                     id: logID
                 });
             });
@@ -60,7 +66,7 @@ class ChatLogger {
                 delete this.logsInProgress[topic.id];
                 this.forum.emit('logEnd', {
                     source: topic.id,
-                    requestor: command.ids.user,
+                    requestor: command.parent.ids.user,
                     id: logID
                 });
             }
@@ -76,7 +82,7 @@ class ChatLogger {
                 delete this.logsInProgress[topic.id];
                 this.forum.emit('logPause', {
                     source: topic.id,
-                    requestor: command.ids.user,
+                    requestor: command.parent.ids.user,
                     id: logID
                 });
             }
@@ -92,7 +98,7 @@ class ChatLogger {
                 command.reply('Resumed logging');
                  this.forum.emit('logResume', {
                     source: topic.id,
-                    requestor: command.ids.user,
+                    requestor: command.parent.ids.user,
                     id: logID
                 });
                 return Promise.resolve();
@@ -129,6 +135,7 @@ class ChatLogger {
 * @returns {String} The log ID
 */
 function getLogID (topicId, logNum) {
+
     //Strip channel ID leading # to make it easier to see
     topicId = topicId.replace('#', '');
     
