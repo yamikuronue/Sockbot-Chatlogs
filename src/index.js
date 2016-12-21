@@ -8,9 +8,11 @@ const debug = require('debug')('sockbot:sockChatLogs');
 
 
 class ChatLogger {
-    constructor(forum) {
+    constructor(forum, config) {
         this.forum = forum;
         this.logsInProgress = {};
+        this.logdir = config.logdir || `${__dirname}/../logs`;
+        require('mkdirp').sync(this.logdir);
     }
     
     activate() {
@@ -18,12 +20,12 @@ class ChatLogger {
         this.forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd, this);
         this.forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause, this);
         this.forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume, this);
-        this.forum.on('notification:message', this.onMessage);
+        this.forum.on('notification:notification', this.onMessage.bind(this));
         return Promise.resolve();
     }
     
     deactivate() {
-        this.forum.off('notification:message', this.onMessage);
+        this.forum.off('notification:notification', this.onMessage);
         return Promise.resolve();
     }
     
@@ -92,7 +94,7 @@ class ChatLogger {
     onResume(command) {
         return command.getTopic().then((topic) => {
             const logID = getLogID(topic.id, command.args[0]);
-            const filename = getFilename(logID);
+            const filename = this.getFilename(logID);
             if (fs.existsSync(filename)) {
                 this.logsInProgress[topic.id] = logID;
                 command.reply('Resumed logging');
@@ -110,10 +112,12 @@ class ChatLogger {
     }
     
     onMessage(notification) {
+        debug('onMessage fired');
         if (this.logsInProgress[notification.topicId]) {
             return new Promise((resolve, reject) => {
                 notification.getText().then((text) => {
-                    const filename = getFilename(this.logsInProgress[notification.topicId]);
+                    const filename = this.getFilename(this.logsInProgress[notification.topicId]);
+                    debug(`writing to file ${filename}`);
                     fs.appendFile(filename, `${text}\n`, (err) => {
                         if (err) {
                             reject(err);
@@ -125,6 +129,15 @@ class ChatLogger {
         }
         
         return Promise.resolve();
+    }
+    
+    /**
+    * Get the filename to log under
+    * @param {String} logID The log identifier
+    * @returns {String} The filename
+    */
+    getFilename(logID) {
+        return `${this.logdir}/${logID}.txt`;
     }
 }
 
@@ -144,17 +157,10 @@ function getLogID (topicId, logNum) {
     return `${topicId}${logNum}`;
 }
 
-/**
-* Get the filename to log under
-* @param {String} logID The log identifier
-* @returns {String} The filename
-*/
-function getFilename(logID) {
-    return `${logID}.txt`;
-}
+
 
 module.exports = {
-    plugin: (forum) => {
-        return new ChatLogger(forum);
+    plugin: (forum, config) => {
+        return new ChatLogger(forum, config);
     }
 };

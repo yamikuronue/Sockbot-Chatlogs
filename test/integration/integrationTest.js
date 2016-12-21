@@ -43,7 +43,9 @@ const mockForum = {
 };
 
 const sockChatLogs = require('../../src/index');
-const chatInstance = sockChatLogs.plugin(mockForum, {});
+const chatInstance = sockChatLogs.plugin(mockForum, {
+    logdir: 'logs'
+});
 
 
 describe('Basic use case', () => {
@@ -90,9 +92,9 @@ describe('Basic use case', () => {
            topicId: '#crossings_ooc',
            getText: () => Promise.resolve('Ho ho ho!')
         })).then(() => {
-           fs.appendFile.should.have.been.calledWith('crossings_ooc24.txt', 'Up on a housetop, reindeer pause\n');
-           fs.appendFile.should.have.been.calledWith('crossings_ooc24.txt', 'Here comes good old Santa Clause\n');
-           fs.appendFile.should.have.been.calledWith('crossings_ooc24.txt', 'Ho ho ho!\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', 'Up on a housetop, reindeer pause\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', 'Here comes good old Santa Clause\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', 'Ho ho ho!\n');
         });
     });
     

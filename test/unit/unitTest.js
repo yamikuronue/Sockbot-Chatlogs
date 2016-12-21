@@ -242,6 +242,7 @@ describe('Sockbot-Chatlogs', function() {
 		
 		before(() => {
 			sinon.stub(fs, 'appendFile').yields();
+			chatLogInstance.logdir = '../logs';
 		});
 		
 		afterEach(() => {
@@ -259,7 +260,7 @@ describe('Sockbot-Chatlogs', function() {
 		it('should call appendFile when logger is on', () => {
 			chatLogInstance.logsInProgress = {'someChannel': 'someChannel1'};
 			return chatLogInstance.onMessage(fakeNotification).then(() => {
-				fs.appendFile.should.have.been.calledWith('someChannel1.txt', 'John Jacob Jingleheimer Shmidt\n');
+				fs.appendFile.should.have.been.calledWith('../logs/someChannel1.txt', 'John Jacob Jingleheimer Shmidt\n');
 			});
 		});
 		
@@ -354,6 +355,7 @@ describe('Sockbot-Chatlogs', function() {
 			sinon.stub(fs, 'existsSync');
 			sinon.spy(mockForum, 'emit');
 			chatLogInstance.forum = mockForum;
+			chatLogInstance.logdir = '../logs';
 		});
 		
 		it('should exist', () => {
@@ -369,7 +371,7 @@ describe('Sockbot-Chatlogs', function() {
 			sinon.spy(fakeCommand, 'reply');
 
 			return chatLogInstance.onResume(fakeCommand).then(() => {
-				fs.existsSync.should.have.been.calledWith('someRoom123.txt');
+				fs.existsSync.should.have.been.calledWith('../logs/someRoom123.txt');
 				fakeCommand.reply.should.have.been.calledWith('Error: No such log to resume');
 				fakeCommand.reply.restore();
 			});
@@ -379,7 +381,7 @@ describe('Sockbot-Chatlogs', function() {
 			fs.existsSync.returns(true);
 			sinon.spy(fakeCommand, 'reply');
 			return chatLogInstance.onResume(fakeCommand).then(() => {
-				fs.existsSync.should.have.been.calledWith('someRoom123.txt');
+				fs.existsSync.should.have.been.calledWith('../logs/someRoom123.txt');
 				fakeCommand.reply.should.have.been.calledWith('Resumed logging');
 				fakeCommand.reply.restore();
 			});
