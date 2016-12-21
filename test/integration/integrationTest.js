@@ -47,6 +47,15 @@ const chatInstance = sockChatLogs.plugin(mockForum, {
     logdir: 'logs'
 });
 
+function notification(user, text) {
+    return {
+       topicId: '#crossings_ooc',
+       getUser: () => Promise.resolve(user),
+       getText: () => Promise.resolve(text),
+       date: new Date(0)
+    };
+}
+
 
 describe('Basic use case', () => {
     beforeEach(() => {
@@ -86,22 +95,14 @@ describe('Basic use case', () => {
                }
             },
            getTopic: () => Promise.resolve({id: '#crossings_ooc'})
-        }).then(() => chatInstance.onMessage({
-           topicId: '#crossings_ooc',
-           getUser: () => Promise.resolve(fakeUser),
-           getText: () => Promise.resolve('Up on a housetop, reindeer pause')
-        })).then(() => chatInstance.onMessage({
-           topicId: '#crossings_ooc',
-           getUser: () => Promise.resolve(fakeUser),
-           getText: () => Promise.resolve('Here comes good old Santa Clause')
-        })).then(() => chatInstance.onMessage({
-           topicId: '#crossings_ooc',
-           getUser: () => Promise.resolve(fakeUser),
-           getText: () => Promise.resolve('Ho ho ho!')
-        })).then(() => {
-           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '<accalia> Up on a housetop, reindeer pause\n');
-           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '<accalia> Here comes good old Santa Clause\n');
-           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '<accalia> Ho ho ho!\n');
+        })
+        .then(() => chatInstance.onMessage(notification(fakeUser, 'Up on a housetop, reindeer pause')))
+        .then(() => chatInstance.onMessage(notification(fakeUser, 'Here comes good old Santa Clause')))
+        .then(() => chatInstance.onMessage(notification(fakeUser, 'Ho ho ho!')))
+        .then(() => {
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '[00:00] <accalia> Up on a housetop, reindeer pause\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '[00:00] <accalia> Here comes good old Santa Clause\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '[00:00] <accalia> Ho ho ho!\n');
         });
     });
     

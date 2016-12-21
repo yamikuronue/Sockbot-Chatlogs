@@ -241,7 +241,8 @@ describe('Sockbot-Chatlogs', function() {
 			getText: () => Promise.resolve('John Jacob Jingleheimer Shmidt'),
 			getUser: () => Promise.resolve({
 				username: 'yamikuronue'
-			})
+			}),
+			date: new Date(0)
 		};
 		
 		before(() => {
@@ -264,7 +265,8 @@ describe('Sockbot-Chatlogs', function() {
 		it('should call appendFile when logger is on', () => {
 			chatLogInstance.logsInProgress = {'someChannel': 'someChannel1'};
 			return chatLogInstance.onMessage(fakeNotification).then(() => {
-				fs.appendFile.should.have.been.calledWith('../logs/someChannel1.txt', '<yamikuronue> John Jacob Jingleheimer Shmidt\n');
+																						//time is unix epoch
+				fs.appendFile.should.have.been.calledWith('../logs/someChannel1.txt', '[00:00] <yamikuronue> John Jacob Jingleheimer Shmidt\n');
 			});
 		});
 		

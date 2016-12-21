@@ -5,6 +5,7 @@ const storage = require('node-persist');
 storage.initSync();
 
 const debug = require('debug')('sockbot:sockChatLogs');
+const moment = require('moment');
 
 
 class ChatLogger {
@@ -125,7 +126,9 @@ class ChatLogger {
                 .then((text) => {
                     const filename = this.getFilename(this.logsInProgress[notification.topicId]);
                     debug(`writing to file ${filename}`);
-                    fs.appendFile(filename, `<${username}> ${text}\n`, (err) => {
+                    
+                    const dateString = moment(notification.date).format('HH:mm');
+                    fs.appendFile(filename, `[${dateString}] <${username}> ${text}\n`, (err) => {
                         if (err) {
                             reject(err);
                         }
