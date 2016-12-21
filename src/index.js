@@ -116,10 +116,16 @@ class ChatLogger {
         debug('onMessage fired');
         if (this.logsInProgress[notification.topicId]) {
             return new Promise((resolve, reject) => {
-                notification.getText().then((text) => {
+                let username;
+                
+                notification.getUser().then((user) => {
+                    username = user.username;
+                })
+                .then(() => notification.getText())
+                .then((text) => {
                     const filename = this.getFilename(this.logsInProgress[notification.topicId]);
                     debug(`writing to file ${filename}`);
-                    fs.appendFile(filename, `${text}\n`, (err) => {
+                    fs.appendFile(filename, `<${username}> ${text}\n`, (err) => {
                         if (err) {
                             reject(err);
                         }

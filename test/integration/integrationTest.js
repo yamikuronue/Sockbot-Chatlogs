@@ -75,6 +75,10 @@ describe('Basic use case', () => {
     
     
     it('Should switch to logging', () => {
+        const fakeUser = {
+            username: 'accalia'
+        };
+        
         return chatInstance.onLogStart({
             parent: {
                ids: {
@@ -84,17 +88,20 @@ describe('Basic use case', () => {
            getTopic: () => Promise.resolve({id: '#crossings_ooc'})
         }).then(() => chatInstance.onMessage({
            topicId: '#crossings_ooc',
+           getUser: () => Promise.resolve(fakeUser),
            getText: () => Promise.resolve('Up on a housetop, reindeer pause')
         })).then(() => chatInstance.onMessage({
            topicId: '#crossings_ooc',
+           getUser: () => Promise.resolve(fakeUser),
            getText: () => Promise.resolve('Here comes good old Santa Clause')
         })).then(() => chatInstance.onMessage({
            topicId: '#crossings_ooc',
+           getUser: () => Promise.resolve(fakeUser),
            getText: () => Promise.resolve('Ho ho ho!')
         })).then(() => {
-           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', 'Up on a housetop, reindeer pause\n');
-           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', 'Here comes good old Santa Clause\n');
-           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', 'Ho ho ho!\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '<accalia> Up on a housetop, reindeer pause\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '<accalia> Here comes good old Santa Clause\n');
+           fs.appendFile.should.have.been.calledWith('logs/crossings_ooc24.txt', '<accalia> Ho ho ho!\n');
         });
     });
     

@@ -238,7 +238,10 @@ describe('Sockbot-Chatlogs', function() {
 	describe('onMessage', () => {
 		const fakeNotification = {
 			topicId: 'someChannel',
-			getText: () => Promise.resolve('John Jacob Jingleheimer Shmidt')
+			getText: () => Promise.resolve('John Jacob Jingleheimer Shmidt'),
+			getUser: () => Promise.resolve({
+				username: 'yamikuronue'
+			})
 		};
 		
 		before(() => {
@@ -261,7 +264,7 @@ describe('Sockbot-Chatlogs', function() {
 		it('should call appendFile when logger is on', () => {
 			chatLogInstance.logsInProgress = {'someChannel': 'someChannel1'};
 			return chatLogInstance.onMessage(fakeNotification).then(() => {
-				fs.appendFile.should.have.been.calledWith('../logs/someChannel1.txt', 'John Jacob Jingleheimer Shmidt\n');
+				fs.appendFile.should.have.been.calledWith('../logs/someChannel1.txt', '<yamikuronue> John Jacob Jingleheimer Shmidt\n');
 			});
 		});
 		
