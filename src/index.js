@@ -31,6 +31,7 @@ class ChatLogger {
     
     getNextLogNum(channel) {
         return storage.getItem(channel).then((value) => {
+            value = Number(value);
             const newValue = value ? value + 1 : 1;
             return storage.setItem(String(channel), String(newValue)).then(() => Promise.resolve(newValue));
         }).catch((err) => {

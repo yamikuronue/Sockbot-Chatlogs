@@ -53,12 +53,12 @@ describe('Sockbot-Chatlogs', function() {
 		});
 		
 		it('should return 2 if log 1 has been made', () => {
-			storage.getItem.resolves(1);
+			storage.getItem.resolves('1');
 			chatLogInstance.getNextLogNum('channel').should.eventually.equal(2);
 		});
 		
 		it('should return one higher than the previous log number', () => {
-			storage.getItem.resolves(32);
+			storage.getItem.resolves('32');
 			chatLogInstance.getNextLogNum('channel').should.eventually.equal(33);
 		});
 		
@@ -67,9 +67,10 @@ describe('Sockbot-Chatlogs', function() {
 			return chatLogInstance.getNextLogNum('channel').then(() => storage.setItem.should.have.been.calledWith('channel', '1'));
 		});
 		
-		it('should store the first log number', () => {
-			storage.getItem.resolves(12);
-			return chatLogInstance.getNextLogNum('channel').then(() => storage.setItem.should.have.been.calledWith('channel', '13'));
+		it('should store the next log number', () => {
+			storage.getItem.resolves('1');
+			storage.setItem.reset();
+			return chatLogInstance.getNextLogNum('channel').then(() => storage.setItem.should.have.been.calledWith('channel', '2'));
 		});
 	});
 	

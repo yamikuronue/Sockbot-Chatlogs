@@ -92,7 +92,7 @@ describe('Sockbot-Chatlogs', function() {
 		it('Should listen for new messages', () => {
 			sinon.spy(mockForum, 'on');
 			return chatLogInstance.activate().then(() => {
-				mockForum.on.should.have.been.calledWith('notification:message');
+				mockForum.on.should.have.been.calledWith('notification:notification');
 				mockForum.on.reset();
 			});
 		});
@@ -100,7 +100,7 @@ describe('Sockbot-Chatlogs', function() {
 		it('Should stop listening on command', () => {
 			sinon.spy(mockForum, 'off');
 			return chatLogInstance.deactivate().then(() => {
-				mockForum.off.should.have.been.calledWith('notification:message');
+				mockForum.off.should.have.been.calledWith('notification:notification');
 				mockForum.off.reset();
 			});
 		});
