@@ -94,7 +94,10 @@ describe('Basic use case', () => {
                    user: 'yamikuronue'
                }
             },
-           getTopic: () => Promise.resolve({id: '#crossings_ooc'})
+           getTopic: () => Promise.resolve({
+               id: '#crossings_ooc',
+               title: '#crossings_ooc'
+           })
         })
         .then(() => chatInstance.onMessage(notification(fakeUser, 'Up on a housetop, reindeer pause')))
         .then(() => chatInstance.onMessage(notification(fakeUser, 'Here comes good old Santa Clause')))

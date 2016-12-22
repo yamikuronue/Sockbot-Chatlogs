@@ -50,7 +50,7 @@ class ChatLogger {
             }
             
             return this.getNextLogNum(topic.id).then((num) => {
-                const logID = getLogID(topic.id, num);
+                const logID = getLogID(topic.title, num);
                 this.logsInProgress[topic.id] = logID;
                 this.forum.emit('logStart', {
                     source: topic.id,

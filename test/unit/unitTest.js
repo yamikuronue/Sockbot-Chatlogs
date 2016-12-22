@@ -77,12 +77,13 @@ describe('Sockbot-Chatlogs', function() {
 	describe('logStart', () => {
 		const fakeCommand = {
 			getTopic: () => Promise.resolve({
-				id: 'someRoom'
+				id: 'C23FGASDF',
+				title: 'someRoom'
 			}),
 			reply: () => Promise.resolve(),
 			parent: {
 				ids: {
-					channel: 'someRoom',
+					channel: 'C23FGASDF',
 					user: 'yamikuronue'
 				}
 			}
@@ -112,8 +113,8 @@ describe('Sockbot-Chatlogs', function() {
 		
 		it('should log the channel', () => {
 			return chatLogInstance.onLogStart(fakeCommand).then(() => {
-				Object.keys(chatLogInstance.logsInProgress).should.include('someRoom');
-				chatLogInstance.logsInProgress.someRoom.should.equal('someRoom1');
+				Object.keys(chatLogInstance.logsInProgress).should.include('C23FGASDF');
+				chatLogInstance.logsInProgress.C23FGASDF.should.equal('someRoom1');
 			});
 		});
 
@@ -121,7 +122,7 @@ describe('Sockbot-Chatlogs', function() {
 			
 			return chatLogInstance.onLogStart(fakeCommand).then(() => {
 				mockForum.emit.should.have.been.calledWith('logStart', {
-					source: 'someRoom',
+					source: 'C23FGASDF',
 					requestor: 'yamikuronue',
 					id: 'someRoom1'
 				});
@@ -129,10 +130,10 @@ describe('Sockbot-Chatlogs', function() {
 		});
 		
 		it('should not log a channel already being logged', () => {
-			chatLogInstance.logsInProgress.someRoom = true;
+			chatLogInstance.logsInProgress.C23FGASDF = true;
 			sinon.spy(fakeCommand, 'reply');
 			return chatLogInstance.onLogStart(fakeCommand).then(() => {
-				Object.keys(chatLogInstance.logsInProgress).should.include('someRoom');
+				Object.keys(chatLogInstance.logsInProgress).should.include('C23FGASDF');
 				fakeCommand.reply.should.have.been.calledWith('Error: Log already in progess');
 				fakeCommand.reply.restore();
 			});
@@ -142,7 +143,8 @@ describe('Sockbot-Chatlogs', function() {
 			it('should remove the leading # from the channel name when making an ID', () => {
 				return chatLogInstance.onLogStart({
 					getTopic: () => Promise.resolve({
-						id: '#someRoom'
+						id: '#someRoom',
+						title: '#someRoom'
 					}),
 					reply: () => Promise.resolve(),
 					parent: {
@@ -160,7 +162,8 @@ describe('Sockbot-Chatlogs', function() {
 			it('should replace windows-unfriendly chars with _', () => {
 				return chatLogInstance.onLogStart({
 					getTopic: () => Promise.resolve({
-						id: '#$0m3r00/\\/\\_%0_:|'
+						id: '#$0m3r00/\\/\\_%0_:|',
+						title: '#$0m3r00/\\/\\_%0_:|'
 					}),
 					reply: () => Promise.resolve(),
 					parent: {
