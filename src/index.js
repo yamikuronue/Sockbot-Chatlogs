@@ -19,8 +19,10 @@ class ChatLogger {
     activate() {
         this.forum.Commands.add('logStart', 'Start a log file in the current channel', this.onLogStart, this);
         this.forum.Commands.add('logEnd', 'End a log file in the current channel', this.onLogEnd, this);
-        this.forum.Commands.add('pause', 'Pause the log file in the current channel', this.onPause, this);
-        this.forum.Commands.add('resume', 'Resume a log file in the current channel', this.onResume, this);
+        this.forum.Commands.add('logpause', 'Pause the log file in the current channel', this.onPause, this);
+        this.forum.Commands.addAlias('pause', this.onPause);
+        this.forum.Commands.add('logresume', 'Resume a log file in the current channel', this.onResume, this);
+        this.forum.Commands.addAlias('resume', this.onResume);
         this.forum.on('notification:notification', this.onMessage.bind(this));
         return Promise.resolve();
     }
