@@ -9,7 +9,9 @@
   "scripts": {
     "test": "npm run unittest && npm run inttest",
     "unittest": "eslint . && mocha test/unit/*.js",
-    "inttest": "mocha test/integration/*.js"
+    "inttest": "mocha test/integration/*.js",
+    "publish-please": "publish-please",
+    "prepublish": "publish-please guard"
   },
   "repository": {
     "type": "git",
